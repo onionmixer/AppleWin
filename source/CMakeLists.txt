@@ -269,9 +269,13 @@ else()
     )
 endif()
 
+# Add debug server subdirectory
+add_subdirectory(debugserver)
+
 target_link_libraries(appleii PUBLIC
   yaml
   minizip
+  debugserver
   )
 
 target_link_directories(appleii PUBLIC

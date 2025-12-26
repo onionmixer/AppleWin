@@ -36,6 +36,37 @@ Audio files can be read via the cassette interface (SDL Version). Just drop a `w
 
 MSYS2 support [msys2](/source/frontends/docs/msys2.md) and [mxe](/source/frontends/docs/mxe.md).
 
+### Debug HTTP Server
+
+A built-in HTTP debug server provides real-time access to emulator state via web browser or API calls.
+
+When the emulator starts, the debug server automatically starts on 4 ports:
+
+| Port  | Description | Dashboard URL |
+|-------|-------------|---------------|
+| 65501 | Machine Info (Apple II type, mode, memory state) | http://127.0.0.1:65501/ |
+| 65502 | I/O Info (soft switches, slot cards, annunciators) | http://127.0.0.1:65502/ |
+| 65503 | CPU Info (registers, flags, breakpoints, disassembly) | http://127.0.0.1:65503/ |
+| 65504 | Memory Info (memory dumps, zero page, stack) | http://127.0.0.1:65504/ |
+
+**API Examples:**
+
+```bash
+# Get machine info
+curl http://127.0.0.1:65501/api/info
+
+# Get CPU registers
+curl http://127.0.0.1:65503/api/registers
+
+# Dump memory at address $C600
+curl "http://127.0.0.1:65504/api/dump?addr=0xC600&lines=8"
+
+# Get expansion slot cards
+curl http://127.0.0.1:65502/api/slots
+```
+
+See [Debug Server Documentation](/source/debugserver/README.md) for full API reference.
+
 ## Executables
 
 ### sa2

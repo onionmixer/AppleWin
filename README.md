@@ -1,21 +1,54 @@
-AppleWin
-========
+# AppleWin for Linux (Extended Fork)
 
-#### Apple II emulator for Windows
+This is an extended fork of [AppleWin Linux port](https://github.com/audetto/AppleWin) by audetto, which is based on the original [AppleWin](https://github.com/AppleWin/AppleWin) Windows emulator.
 
-AppleWin is a fully-featured emulator supporting different Apple II models and clones. A variety of peripheral cards and video display modes are supported (eg. NTSC, RGB); and there's an extensive built-in symbolic debugger.
+## Upstream Projects
 
-Apple II models supported include:
+| Project | URL | Description |
+|---------|-----|-------------|
+| AppleWin (Original) | https://github.com/AppleWin/AppleWin | Apple II emulator for Windows |
+| AppleWin Linux Port | https://github.com/audetto/AppleWin | Linux port by audetto |
 
-* ][
-* ][+
-* //e
-* //e Enhanced
+## What's New in This Fork
+
+### Debug HTTP Server
+
+A built-in HTTP debug server provides real-time access to emulator state via web browser or API calls. The server starts automatically when the emulator runs.
+
+| Port  | Description | Dashboard URL |
+|-------|-------------|---------------|
+| 65501 | Machine Info (Apple II type, mode, memory state) | http://127.0.0.1:65501/ |
+| 65502 | I/O Info (soft switches, slot cards, annunciators) | http://127.0.0.1:65502/ |
+| 65503 | CPU Info (registers, flags, breakpoints, disassembly) | http://127.0.0.1:65503/ |
+| 65504 | Memory Info (memory dumps, zero page, stack) | http://127.0.0.1:65504/ |
+
+**API Examples:**
+
+```bash
+# Get machine info
+curl http://127.0.0.1:65501/api/info
+
+# Get CPU registers
+curl http://127.0.0.1:65503/api/registers
+
+# Dump memory at address $C600
+curl "http://127.0.0.1:65504/api/dump?addr=0xC600&lines=8"
+
+# Get expansion slot cards
+curl http://127.0.0.1:65502/api/slots
+```
+
+See [Debug Server Documentation](source/debugserver/README.md) for full API reference.
+
+## Apple II Models Supported
+
+* Apple ][
+* Apple ][+
+* Apple //e
+* Apple //e Enhanced
 * Various clones (Pravets, TK3000, Base 64)
 
-There is currently no support for the //c, //c+, Laser 128, Laser 128EX, Laser 128EX2, or Apple IIgs.
-
-Peripheral cards and add-on hardware supported:
+## Peripheral Cards Supported
 
 - Mockingboard, Phasor and SAM sound cards
 - Disk II interface for floppy disk drives
@@ -24,55 +57,83 @@ Peripheral cards and add-on hardware supported:
 - Parallel printer card
 - Mouse interface
 - Apple IIe Extended 80-Column Text Card and RamWorks III (8MB)
-- RGB cards: Apple's Extended 80-Column Text/AppleColor Adaptor Card and 'Le Chat Mauve' Féline.
+- RGB cards: Apple's Extended 80-Column Text/AppleColor Adaptor Card and 'Le Chat Mauve' Féline
 - CP/M SoftCard
 - Uthernet I and II (ethernet cards)
-- Language Card and Saturn 64/128K for Apple II/II+ (and Saturn 128K for any Apple II in slot 3)
-- 4Play and SNES MAX joystick cards
-- VidHD card (functionality limited to IIgs' Super Hi-Res video modes)
+- Language Card and Saturn 64/128K
+- VidHD card
 - No Slot Clock (NSC)
-- Game I/O Connector copy protection dongles 
 
-Running
-=======
+## Building
 
-Download latest (stable) release: [AppleWin v1.30.21.0](https://github.com/AppleWin/AppleWin/releases/download/v1.30.21.0/AppleWin1.30.21.0.zip)
+### Prerequisites
 
-Release Notes: [v1.30.21.0](https://github.com/AppleWin/AppleWin/releases/tag/v1.30.21.0)
+**Ubuntu/Debian:**
+```bash
+sudo apt-get -y install $(cat source/linux/raspbian.list.txt)
+```
 
+**Fedora:**
+```bash
+# Install packages from source/linux/fedora.list.txt
+```
 
-Building
-========
-To compile for Windows from source see:
+### Checkout
 
-* [docs/compiling.txt](https://github.com/AppleWin/AppleWin/blob/master/docs/compiling.txt)
+```bash
+git clone --recursive <repository-url>
+```
 
+### Build
 
-Unofficial Ports
-================
+```bash
+cd AppleWin
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+make
+```
 
-These ports will allow you to build and run AppleWin on other platforms:
+### Frontend Selection
 
-* [Linux](https://github.com/audetto/AppleWin)
-* [macOS](https://github.com/sh95014/AppleWin)
+```bash
+# Build only SDL2 frontend
+cmake -DBUILD_SA2=ON -DBUILD_QAPPLE=OFF -DBUILD_APPLEN=OFF -DBUILD_LIBRETRO=OFF ..
+```
 
-Contributing
-============
-Please see the [CONTRIBUTING](https://github.com/AppleWin/AppleWin/blob/master/CONTRIBUTING.md) document before raising new bugs, features and _especially_ PRs (Pull Requests).
+Available options: `BUILD_APPLEN`, `BUILD_QAPPLE`, `BUILD_SA2`, `BUILD_LIBRETRO`
 
+## Running
 
-Next Version
-============
-Experimental build: pending
+```bash
+./sa2
+```
 
-Please report [new issues](https://github.com/AppleWin/AppleWin/issues/new)
+The Debug HTTP Server will start automatically on ports 65501-65504.
 
+## Frontends
 
-Previous Versions
-=================
+| Frontend | Description |
+|----------|-------------|
+| **sa2** | SDL2 + ImGui (recommended) |
+| applen | ncurses with ASCII art graphics |
+| qapple | Qt5/Qt6 frontend |
+| ra2 | libretro core |
 
-Last version supporting Windows XP: [AppleWin v1.30.21.0](https://github.com/AppleWin/AppleWin/releases/tag/v1.30.21.0)
+See [.github/README.md](.github/README.md) for detailed documentation on each frontend.
 
-Last version supporting Windows 2000: [AppleWin v1.29.16.0](https://github.com/AppleWin/AppleWin/releases/tag/v1.29.16.0)
+## Documentation
 
-Last version supporting Windows 98/ME: [AppleWin v1.25.0.4](https://github.com/AppleWin/AppleWin/releases/tag/v1.25.0.4)
+- [Debug Server API](source/debugserver/README.md) - HTTP debug server documentation
+- [SDL2 Frontend](source/frontends/sdl/README.md) - sa2 specific options
+- [Linux Port Details](.github/README.md) - Full Linux port documentation
+- [Network Setup](source/Tfe/README.md) - Uthernet/network configuration
+
+## License
+
+GPL-2.0 - Same as AppleWin
+
+## Credits
+
+- [AppleWin Team](https://github.com/AppleWin/AppleWin) - Original Windows emulator
+- [audetto](https://github.com/audetto/AppleWin) - Linux port

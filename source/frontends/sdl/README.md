@@ -91,6 +91,19 @@ For debugging and profiling (valgrind), it is best to switch off adaptive speed,
 
 Use ``--fixed-speed``.
 
+### Debug HTTP Server
+
+The emulator includes a built-in HTTP debug server that starts automatically. Access real-time emulator state via web browser:
+
+| Port  | URL | Information |
+|-------|-----|-------------|
+| 65501 | http://127.0.0.1:65501/ | Machine Info (Apple II type, mode) |
+| 65502 | http://127.0.0.1:65502/ | I/O Info (soft switches, slots) |
+| 65503 | http://127.0.0.1:65503/ | CPU Info (registers, breakpoints) |
+| 65504 | http://127.0.0.1:65504/ | Memory Info (dumps, stack) |
+
+JSON APIs are also available at `/api/*` endpoints. See [Debug Server Documentation](/source/debugserver/README.md) for details.
+
 ## QEMU
 
 If the OpenGL implementation does not support `vsync`, the emulator will revert to `sleep_until` from `<thread>`; it is possible to force this behaviour with `--timer`.

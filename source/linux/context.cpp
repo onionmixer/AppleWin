@@ -18,6 +18,7 @@
 #include "SaveState.h"
 #include "Memory.h"
 #include "Speaker.h"
+#include "debugserver/DebugServerManager.h"
 
 namespace
 {
@@ -115,10 +116,18 @@ void InitialiseEmulator(const AppMode_e mode)
 
     DebugInitialize();
     KeybReset();
+
+    // Start Debug HTTP Server (ports 65501-65504)
+    if (DebugServer_Start()) {
+        LogFileOutput("Debug HTTP Server started on ports 65501-65504\n");
+    }
 }
 
 void DestroyEmulator()
 {
+    // Stop Debug HTTP Server first
+    DebugServer_Stop();
+
     CardManager &cardManager = GetCardMgr();
     cardManager.Destroy();
 
