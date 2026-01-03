@@ -9100,14 +9100,27 @@ void DebugContinueStepping (const bool bCallerWillUpdateDisplay/*=false*/)
 			SingleStep(g_bGoCmd_ReinitFlag);
 			g_bGoCmd_ReinitFlag = false;
 
-			// Debug stream: broadcast CPU registers after step
+			// Debug stream: broadcast CPU state after step
 			if (DebugServer_IsStreamEnabled())
 			{
 				auto& manager = debugserver::DebugServerManager::GetInstance();
 				auto* provider = manager.GetStreamProvider();
 				if (provider && manager.GetStreamServer() && manager.GetStreamServer()->GetClientCount() > 0)
 				{
+					// CPU registers
 					manager.BroadcastStreamData(provider->GetCPURegisters());
+					// CPU flags
+					manager.BroadcastStreamData(provider->GetCPUFlags());
+					// Memory flags (soft switches)
+					manager.BroadcastStreamData(provider->GetMemoryFlags());
+					// Zero page dump (for real-time memory monitoring)
+					for (const auto& line : provider->GetZeroPageDump()) {
+						manager.BroadcastStreamData(line);
+					}
+					// Stack page dump
+					for (const auto& line : provider->GetStackPageDump()) {
+						manager.BroadcastStreamData(line);
+					}
 				}
 			}
 

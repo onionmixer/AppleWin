@@ -32,6 +32,14 @@ namespace common2
         LinuxFrame::Begin();
         ResetSpeed();
         ResetHardware();
+
+        // Only initialize debugger UI if we're starting in DEBUG mode
+        // DebugBegin() sets g_nAppMode = MODE_DEBUG, so don't call it if autoBoot is enabled
+        // Debug server (ports 65501-65505) is initialized separately and works in any mode
+        if (g_nAppMode == MODE_DEBUG)
+        {
+            DebugBegin();
+        }
     }
 
     void CommonFrame::ResetSpeed()

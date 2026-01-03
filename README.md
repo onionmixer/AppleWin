@@ -40,6 +40,50 @@ curl http://127.0.0.1:65502/api/slots
 
 See [Debug Server Documentation](source/debugserver/README.md) for full API reference.
 
+### Debug Stream Server (Telnet)
+
+A real-time debug streaming server provides continuous emulator state output via TCP/Telnet connection. Data is output in JSON Lines format, suitable for real-time monitoring and integration with external tools.
+
+| Port  | Description | Connection |
+|-------|-------------|------------|
+| 65505 | Debug Stream (JSON Lines) | `telnet 127.0.0.1 65505` or `nc 127.0.0.1 65505` |
+
+**Output Format (JSON Lines):**
+
+Each line is an independent JSON object with the following structure:
+```json
+{"emu":"apple","cat":"cpu","sec":"reg","fld":"pc","val":"C600"}
+{"emu":"apple","cat":"cpu","sec":"reg","fld":"a","val":"00"}
+{"emu":"apple","cat":"mem","sec":"write","fld":"byte","val":"20","addr":"0300"}
+```
+
+**Key Fields:**
+| Field | Description |
+|-------|-------------|
+| `emu` | Emulator identifier (`apple`) |
+| `cat` | Category (`cpu`, `mem`, `io`, `mach`, `dbg`, `sys`) |
+| `sec` | Section (e.g., `reg`, `flag`, `dump`) |
+| `fld` | Field name |
+| `val` | Value (always string) |
+
+**Usage Examples:**
+
+```bash
+# Connect and view real-time stream
+telnet 127.0.0.1 65505
+
+# Using netcat
+nc 127.0.0.1 65505
+
+# Filter CPU register changes
+nc 127.0.0.1 65505 | grep '"cat":"cpu"'
+
+# Save to file
+nc 127.0.0.1 65505 > debug_log.jsonl
+```
+
+See [Debug Stream Specification](RetroDeveloperEnvironmentProject_OUTPUT_SPEC_V01.md) for full protocol documentation.
+
 ## Apple II Models Supported
 
 * Apple ][
@@ -109,7 +153,7 @@ Available options: `BUILD_APPLEN`, `BUILD_QAPPLE`, `BUILD_SA2`, `BUILD_LIBRETRO`
 ./sa2
 ```
 
-The Debug HTTP Server will start automatically on ports 65501-65504.
+The Debug HTTP Server will start automatically on ports 65501-65504, and the Debug Stream Server on port 65505.
 
 ## Frontends
 
@@ -125,6 +169,7 @@ See [.github/README.md](.github/README.md) for detailed documentation on each fr
 ## Documentation
 
 - [Debug Server API](source/debugserver/README.md) - HTTP debug server documentation
+- [Debug Stream Specification](RetroDeveloperEnvironmentProject_OUTPUT_SPEC_V01.md) - Telnet debug stream protocol
 - [SDL2 Frontend](source/frontends/sdl/README.md) - sa2 specific options
 - [Linux Port Details](.github/README.md) - Full Linux port documentation
 - [Network Setup](source/Tfe/README.md) - Uthernet/network configuration

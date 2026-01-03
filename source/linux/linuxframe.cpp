@@ -150,7 +150,9 @@ void LinuxFrame::GetBitmap(WORD id, LONG cb, LPVOID lpvBits)
 
 void LinuxFrame::Begin()
 {
-    InitialiseEmulator(myAutoBoot ? MODE_RUNNING : MODE_PAUSED);
+    // Start in RUNNING mode if autoBoot is enabled, otherwise DEBUG mode
+    // Debug server will still be available regardless of start mode
+    InitialiseEmulator(myAutoBoot ? MODE_RUNNING : MODE_DEBUG);
     Initialize(true);
 }
 

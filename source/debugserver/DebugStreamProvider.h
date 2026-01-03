@@ -117,6 +117,9 @@ public:
     // Memory bank/mode status
     std::string GetMemoryBankStatus();
 
+    // Get all memory flags (soft switch states) as JSON line
+    std::string GetMemoryFlags();
+
     //-------------------------------------------------------------------------
     // I/O Information (cat: io)
     //-------------------------------------------------------------------------
@@ -151,10 +154,53 @@ public:
     std::string GetTraceMemory(uint16_t addr, uint8_t value, bool isWrite);
 
     //-------------------------------------------------------------------------
+    // I/O Information (cat: io) - NEW for 65502 compatibility
+    //-------------------------------------------------------------------------
+
+    // Get all soft switch states
+    std::vector<std::string> GetSoftSwitches();
+
+    // Get expansion slot card info
+    std::vector<std::string> GetSlotInfo();
+
+    // Get annunciator states
+    std::vector<std::string> GetAnnunciators();
+
+    //-------------------------------------------------------------------------
+    // Extended CPU Information (cat: dbg) - NEW for 65503 compatibility
+    //-------------------------------------------------------------------------
+
+    // Get all breakpoints list
+    std::vector<std::string> GetBreakpointList();
+
+    // Get disassembly around an address
+    std::vector<std::string> GetDisassembly(uint16_t addr, int lines);
+
+    // Get CPU stack contents
+    std::vector<std::string> GetCPUStack();
+
+    //-------------------------------------------------------------------------
+    // Extended Memory Information (cat: mem) - NEW for 65504 compatibility
+    //-------------------------------------------------------------------------
+
+    // Get zero page dump ($0000-$00FF)
+    std::vector<std::string> GetZeroPageDump();
+
+    // Get stack page dump ($0100-$01FF)
+    std::vector<std::string> GetStackPageDump();
+
+    // Get text screen contents
+    std::vector<std::string> GetTextScreen();
+
+    // Get memory dump at specific address
+    std::vector<std::string> GetMemoryDumpAt(uint16_t startAddr, int bytes);
+
+    //-------------------------------------------------------------------------
     // Full State Snapshot
     //-------------------------------------------------------------------------
 
     // Get complete system state (for initial connection)
+    // Now includes all data from 65501-65504
     std::vector<std::string> GetFullSnapshot();
 
     //-------------------------------------------------------------------------
