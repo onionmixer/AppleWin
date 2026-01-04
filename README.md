@@ -48,13 +48,21 @@ A real-time debug streaming server provides continuous emulator state output via
 |-------|-------------|------------|
 | 65505 | Debug Stream (JSON Lines) | `telnet 127.0.0.1 65505` or `nc 127.0.0.1 65505` |
 
+**Features:**
+- Initial full snapshot on connection (machine info, CPU, memory, I/O, breakpoints, disassembly)
+- Continuous periodic updates every 100ms
+- Includes CPU registers, flags, memory mode, I/O switches, annunciators, machine status, and cycle count
+- Timestamps for synchronization
+
 **Output Format (JSON Lines):**
 
 Each line is an independent JSON object with the following structure:
 ```json
-{"emu":"apple","cat":"cpu","sec":"reg","fld":"pc","val":"C600"}
+{"emu":"apple","cat":"cpu","sec":"reg","fld":"pc","val":"C600","ts":"1767507482509"}
 {"emu":"apple","cat":"cpu","sec":"reg","fld":"a","val":"00"}
-{"emu":"apple","cat":"mem","sec":"write","fld":"byte","val":"20","addr":"0300"}
+{"emu":"apple","cat":"io","sec":"switch","fld":"80store","val":"0"}
+{"emu":"apple","cat":"io","sec":"ann","fld":"state","val":"1","idx":"2"}
+{"emu":"apple","cat":"mach","sec":"info","fld":"cycles","val":"76808684"}
 ```
 
 **Key Fields:**
@@ -62,9 +70,22 @@ Each line is an independent JSON object with the following structure:
 |-------|-------------|
 | `emu` | Emulator identifier (`apple`) |
 | `cat` | Category (`cpu`, `mem`, `io`, `mach`, `dbg`, `sys`) |
-| `sec` | Section (e.g., `reg`, `flag`, `dump`) |
+| `sec` | Section (e.g., `reg`, `flag`, `switch`, `ann`) |
 | `fld` | Field name |
 | `val` | Value (always string) |
+| `ts` | Timestamp in milliseconds (optional) |
+| `idx` | Index for indexed fields like annunciators (optional) |
+
+**Periodic Update Data:**
+| Category | Data |
+|----------|------|
+| `cpu.reg` | PC, A, X, Y, SP, P registers |
+| `cpu.flag` | N, V, B, D, I, Z, C flags |
+| `mem.flag` | 80store, auxRead, auxWrite, altZP, highRam, bank2, writeRam, page2, hires |
+| `io.switch` | All soft switches (80store, ramrd, ramwrt, altzp, page2, hires, lcram, lcbank2, lcwrite, intcxrom, slotc3rom) |
+| `io.ann` | Annunciator states (0-3) |
+| `mach.status` | Running mode |
+| `mach.info` | Cycle count |
 
 **Usage Examples:**
 
@@ -77,6 +98,9 @@ nc 127.0.0.1 65505
 
 # Filter CPU register changes
 nc 127.0.0.1 65505 | grep '"cat":"cpu"'
+
+# Filter I/O switch changes
+nc 127.0.0.1 65505 | grep '"cat":"io"'
 
 # Save to file
 nc 127.0.0.1 65505 > debug_log.jsonl
